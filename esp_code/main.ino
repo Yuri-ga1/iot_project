@@ -1,122 +1,141 @@
 #include <WiFi.h>
-#include <WiFiClient.h>
 #include <WebServer.h>
-#include <MQUnifiedsensor.h>
-#include <HTTPClient.h>
+#include <PubSubClient.h>
 #include <ArduinoJson.h>
-#include <WiFiManager.h>
+#include <MQ2Lib.h>
 
 const int buzzerPin = 14;
-const int mq2Pin = 15;
-const int smokeThreshold = 500;
-const int gasThreshold = 500;
+const int mq2Pin = 34;
 
-MQUnifiedsensor MQ2("ESP32", 3.3, 4096, mq2Pin, "MQ-2");
+const float smokeThreshold = 500;
+const float gasThreshold = 500;
+
+MQ2 mq2(mq2Pin);
 
 WebServer server(80);
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+const char* ssid = "ESP32_AP";
+const char* password = "12345678";
+const char* mqtt_server = "broker.emqx.io";
+const int mqtt_port = 1883;
+String macAddress;
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   pinMode(buzzerPin, OUTPUT);
 
-  MQ2.setRegressionMethod(1); //_PPM =  a*ratio^b
-  MQ2.setA(605.18); MQ2.setB(-3.937); // Это параметры для определения концентрации CO
-  MQ2.init();
+  mq2.begin();
 
-  WiFiManager wifiManager;
-
-  wifiManager.setConfigPortalTimeout(180);
-
-  wifiManager.autoConnect("ESP32_AP", "12345678");
-
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("Failed to connect and hit timeout");
-    ESP.restart();
-  }
-
-  sendMACAddress();
+  WiFi.softAP(ssid, password);
 
   server.on("/", handleRoot);
+  server.on("/save", HTTP_POST, handleSave);
   server.begin();
 
-  Serial.println("Connected to Wi-Fi");
   Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+  Serial.println(WiFi.softAPIP());
+
+  client.setServer(mqtt_server, mqtt_port);
 }
 
 void loop() {
   server.handleClient();
 
-  MQ2.update();
+  if (WiFi.status() == WL_CONNECTED) {
+    if (!client.connected()) {
+      reconnect();
+    }
+    client.loop();
 
-  float smokeLevel = MQ2.readSensor();
-  float gasLevel = MQ2.readSensor();
+    float smokeLevel = mq2.readSmoke();
+    float gasLevel = mq2.readLPG();
 
-  if (smokeLevel > smokeThreshold || gasLevel > gasThreshold) {
-    digitalWrite(buzzerPin, HIGH);
-  } else {
-    digitalWrite(buzzerPin, LOW);
+    if (isnan(smokeLevel) || isnan(gasLevel)) {
+      Serial.println("Error: Sensor reading returned NaN");
+      return; 
+    }
+
+    Serial.print("smoke: ");
+    Serial.println(smokeLevel);
+    Serial.print("gas: ");
+    Serial.println(gasLevel);
+
+    if (smokeLevel > smokeThreshold || gasLevel > gasThreshold) {
+      digitalWrite(buzzerPin, HIGH);
+    } else {
+      digitalWrite(buzzerPin, LOW);
+    }
+
+    sendDataToMQTT(smokeLevel, gasLevel);
   }
-
-  sendDataToServer(smokeLevel, gasLevel);
   delay(1000);
 }
 
 void handleRoot() {
+  macAddress = WiFi.macAddress();
   String html = "<!DOCTYPE html><html><head><title>ESP32 Wi-Fi Configuration</title></head><body>";
   html += "<h1>ESP32 Wi-Fi Configuration</h1>";
-  html += "<form method='POST' action='/save'>SSID: <input type='text' name='ssid'><br>Password: <input type='password' name='password'><br><input type='submit' value='Save'></form>";
+  html += "<form method='POST' action='/save'>";
+  html += "SSID: <input type='text' name='ssid' required><br>";
+  html += "Password: <input type='password' name='password' required><br>";
+  html += "<input type='submit' value='Save'></form>";
+  html += "<p>MAC Address: " + macAddress + "</p>";
   html += "</body></html>";
   server.send(200, "text/html", html);
 }
 
-void sendDataToServer(float smokeLevel, float gasLevel) {
+void handleSave() {
+  if (server.hasArg("ssid") && server.hasArg("password")) {
+    String ssid = server.arg("ssid");
+    String password = server.arg("password");
+
+    Serial.println("SSID: " + ssid);
+    Serial.println("Password: " + password);
+
+    WiFi.begin(ssid.c_str(), password.c_str());
+    if (WiFi.waitForConnectResult() == WL_CONNECTED) {
+      Serial.println("Reconnected to Wi-Fi");
+    } else {
+      Serial.println("Failed to connect to Wi-Fi");
+    }
+
+    String response = "Data saved:<br>SSID: " + ssid + "<br>Password: " + password;
+    response += "<br>MAC Address: " + macAddress;
+    server.send(200, "text/html", response);
+  } else {
+    server.send(400, "text/html", "Invalid Request");
+  }
+}
+
+void sendDataToMQTT(float smokeLevel, float gasLevel) {
   if (WiFi.status() == WL_CONNECTED) {
     DynamicJsonDocument doc(200);
-    doc["mac_address"] = WiFi.macAddress();
     doc["smoke_level"] = smokeLevel;
     doc["gas_level"] = gasLevel;
     String jsonStr;
     serializeJson(doc, jsonStr);
-    HTTPClient http;
 
-    http.begin("http://<SERVER_IP>:<PORT>/data"); 
-    http.addHeader("Content-Type", "application/json");
-    int httpResponseCode = http.POST(jsonStr);
-    if (httpResponseCode > 0) {
-      Serial.print("Data sent to server successfully. Response code: ");
-      Serial.println(httpResponseCode);
-    } else {
-      Serial.print("Error sending data to server. Error code: ");
-      Serial.println(httpResponseCode);
-    }
-    http.end();
+    String topic = "detectors/" + macAddress;
+    client.publish(topic.c_str(), jsonStr.c_str());
+    Serial.println("Data sent to MQTT successfully.");
   } else {
     Serial.println("WiFi not connected");
   }
 }
 
-void sendMACAddress() {
-  if (WiFi.status() == WL_CONNECTED) {
-    String macAddress = WiFi.macAddress();
-    DynamicJsonDocument doc(100);
-    doc["mac_address"] = macAddress;
-    String jsonStr;
-    serializeJson(doc, jsonStr);
-    HTTPClient http;
-
-    http.begin("http://<SERVER_IP>:<PORT>/registration"); 
-    http.addHeader("Content-Type", "application/json");
-    int httpResponseCode = http.POST(jsonStr);
-    if (httpResponseCode > 0) {
-      Serial.print("MAC address sent to server successfully. Response code: ");
-      Serial.println(httpResponseCode);
+void reconnect() {
+  while (!client.connected()) {
+    Serial.print("Attempting MQTT connection...");
+    if (client.connect(macAddress.c_str())) {
+      Serial.println("connected");
+      client.subscribe("detectors/#");
     } else {
-      Serial.print("Error sending MAC address to server. Error code: ");
-      Serial.println(httpResponseCode);
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+      delay(5000);
     }
-    http.end();
-  } else {
-    Serial.println("WiFi not connected");
   }
 }

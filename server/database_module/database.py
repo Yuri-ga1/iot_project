@@ -24,9 +24,10 @@ class Database:
         self.session.close()
 
 
-    async def add_device(self, mac: str, client_id: int):
+    async def add_device(self, mac: str, room: str, client_id: int):
         new_device = Device(
             MAC_address=mac,
+            room=room,
             client_id=client_id
         )
         self.session.add(new_device)

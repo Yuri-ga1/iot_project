@@ -20,6 +20,7 @@ class Device(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     MAC_address = Column(String, nullable=False)
+    room = Column(String, nullable=False)
     client_id = Column(Integer, ForeignKey('clients.id'), nullable=False)
     
     client = relationship('Client', back_populates='device')

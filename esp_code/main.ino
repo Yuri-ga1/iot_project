@@ -50,7 +50,7 @@ void loop() {
     client.loop();
 
     float smokeLevel = mq2.readSmoke();
-    float gasLevel = mq2.readLPG();
+    float gasLevel = mq2.readCO();
 
     if (isnan(smokeLevel) || isnan(gasLevel)) {
       Serial.println("Error: Sensor reading returned NaN");

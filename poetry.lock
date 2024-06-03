@@ -147,6 +147,35 @@ typer = ">=0.12.3"
 standard = ["fastapi", "uvicorn[standard] (>=0.15.0)"]
 
 [[package]]
+name = "fastapi-mqtt"
+version = "2.2.0"
+description = "fastapi-mqtt is extension for MQTT protocol"
+optional = false
+python-versions = "<4.0,>=3.8"
+files = [
+    {file = "fastapi_mqtt-2.2.0-py3-none-any.whl", hash = "sha256:1bb5e5cca39457c72d9cd0e36b56817923f49ee1a9605fe8dbad36d5ce450c36"},
+    {file = "fastapi_mqtt-2.2.0.tar.gz", hash = "sha256:68308fe47c068b4d2146b3eb10aa198fa08d827aa3dc3d081dd5821e53090b2b"},
+]
+
+[package.dependencies]
+gmqtt = ">=0.6.11"
+pydantic = ">=2.3.0"
+
+[[package]]
+name = "gmqtt"
+version = "0.6.16"
+description = "Client for MQTT protocol"
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "gmqtt-0.6.16-py3-none-any.whl", hash = "sha256:577f9170a88c98c0b16e9ca5cc895d5a3ee82615ace628757454500e565bd12f"},
+    {file = "gmqtt-0.6.16.tar.gz", hash = "sha256:ddd1fdc1c6ae604e74377cf70e99f067e579c03c1c71a6acd494e199e93b7fa4"},
+]
+
+[package.extras]
+test = ["atomicwrites (>=1.3.0)", "attrs (>=19.1.0)", "codecov (>=2.0.15)", "coverage (>=4.5.3)", "more-itertools (>=7.0.0)", "pluggy (>=0.11.0)", "py (>=1.8.0)", "pytest (>=5.4.0)", "pytest-asyncio (>=0.12.0)", "pytest-cov (>=2.7.1)", "six (>=1.12.0)", "uvloop (>=0.14.0)"]
+
+[[package]]
 name = "greenlet"
 version = "3.0.3"
 description = "Lightweight in-process concurrent programming"
@@ -506,17 +535,6 @@ files = [
     {file = "orjson-3.10.3-cp39-none-win32.whl", hash = "sha256:b8d4d1a6868cde356f1402c8faeb50d62cee765a1f7ffcfd6de732ab0581e063"},
     {file = "orjson-3.10.3-cp39-none-win_amd64.whl", hash = "sha256:5102f50c5fc46d94f2033fe00d392588564378260d64377aec702f21a7a22912"},
     {file = "orjson-3.10.3.tar.gz", hash = "sha256:2b166507acae7ba2f7c315dcf185a9111ad5e992ac81f2d507aac39193c2c818"},
-]
-
-[[package]]
-name = "phonenumbers"
-version = "8.13.37"
-description = "Python version of Google's common library for parsing, formatting, storing and validating international phone numbers."
-optional = false
-python-versions = "*"
-files = [
-    {file = "phonenumbers-8.13.37-py2.py3-none-any.whl", hash = "sha256:4ea00ef5012422c08c7955c21131e7ae5baa9a3ef52cf2d561e963f023006b80"},
-    {file = "phonenumbers-8.13.37.tar.gz", hash = "sha256:bd315fed159aea0516f7c367231810fe8344d5bec26156b88fa18374c11d1cf2"},
 ]
 
 [[package]]
@@ -1230,4 +1248,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "96ac445eb6c20e06b3f3a1c537cfb028c0b76dcf122445359defb5a295f8af5b"
+content-hash = "48def46411e009f904355eea899c1dd9a975d4ae6ae7b805818a36b3662625a4"

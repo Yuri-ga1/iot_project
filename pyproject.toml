@@ -11,7 +11,8 @@ uvicorn = "^0.29.0"
 
 
 sqlalchemy = "^2.0.30"
-phonenumbers = "^8.13.37"
+fastapi-mqtt = "^2.2.0"
+jinja2 = "^3.1.4"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

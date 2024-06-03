@@ -8,8 +8,10 @@ class Client(Base):
     __tablename__ = 'clients'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=True)
-    phone_number = Column(String, nullable=False)
+    name = Column(String, nullable=False)
+    login = Column(String, nullable=False)
+    password = Column(String, nullable=False)
+    email = Column(String, nullable=False)
     
     device = relationship("Device", back_populates='client')
 

@@ -32,10 +32,12 @@ class Database:
         self.session.add(new_device)
         self.session.commit()
         
-    async def add_client(self, name: str, phone: str):
+    async def add_client(self, name: str, login: str, password: str, email: str):
         new_client = Client(
             name=name,
-            phone_number=phone
+            login=login,
+            password=password,
+            email=email
         )
         self.session.add(new_client)
         self.session.commit()
@@ -49,9 +51,9 @@ class Database:
         return device.id if device else None
         
         
-    async def get_client_by_phone(self, phone: str):
+    async def get_client(self, login: str, hashed_password: str):
         client = self.session.query(Client)\
-            .filter(Client.phone_number == phone)\
+            .filter(Client.login == login, Client.password == hashed_password)\
             .first()
             
         return client.id if client else None
@@ -82,6 +84,3 @@ class Database:
             data = self.session.query(Data).all()
             
         return data
-        
-
-database = Database()

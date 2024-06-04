@@ -50,6 +50,11 @@ class Database:
             .first()
         
         return device.id if device else None
+    
+    async def get_devices_mac(self):
+        macs = self.session.query(Device.MAC_address).all()
+        
+        return macs if macs else None
         
         
     async def get_client(self, login: str, hashed_password: str):

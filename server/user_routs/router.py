@@ -64,11 +64,12 @@ async def device_registration(
             client_id=client_id
         )
         logger.info(f"Device with MAC: {mac} registered successfully")
-        if mqtt.client.is_connected:
-            mqtt.client.subscribe(f"detectors/{mac}")
-            logger.info(f"Subscribed to MQTT topic: detectors/{mac}")
-        else:
-            logger.error("Failed to subscribe to MQTT topic: MQTT client is not connected")
+        
+    if mqtt.client.is_connected:
+        mqtt.client.subscribe(f"detectors/{mac}")
+        logger.info(f"Subscribed to MQTT topic: detectors/{mac}")
+    else:
+        logger.error("Failed to subscribe to MQTT topic: MQTT client is not connected")
         
     return RedirectResponse(url="/", status_code=303)
 
@@ -79,7 +80,6 @@ def connect(client, flags, rc, properties):
 
 @mqtt.on_message()
 async def message(client, topic, payload, qos, properties):
-    logger.info(f"Received message on topic {topic}: {payload}")
     try:
         payload = json.loads(payload.decode("utf-8"))
         mac_address = payload.get("mac_address")

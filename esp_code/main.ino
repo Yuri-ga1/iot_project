@@ -112,6 +112,7 @@ void handleSave() {
 void sendDataToMQTT(float smokeLevel, float gasLevel) {
   if (WiFi.status() == WL_CONNECTED) {
     DynamicJsonDocument doc(200);
+    doc["mac_address"] = WiFi.macAddress();
     doc["smoke_level"] = smokeLevel;
     doc["gas_level"] = gasLevel;
     String jsonStr;

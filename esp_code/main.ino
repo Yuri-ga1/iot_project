@@ -70,7 +70,7 @@ void loop() {
 
     sendDataToMQTT(smokeLevel, gasLevel);
   }
-  delay(1000);
+  delay(5000);
 }
 
 void handleRoot() {
@@ -94,20 +94,29 @@ void handleSave() {
     Serial.println("SSID: " + ssid);
     Serial.println("Password: " + password);
 
-    WiFi.begin(ssid.c_str(), password.c_str());
-    if (WiFi.waitForConnectResult() == WL_CONNECTED) {
-      Serial.println("Reconnected to Wi-Fi");
-    } else {
-      Serial.println("Failed to connect to Wi-Fi");
-    }
+    
 
     String response = "Data saved:<br>SSID: " + ssid + "<br>Password: " + password;
     response += "<br>MAC Address: " + macAddress;
     server.send(200, "text/html", response);
+    WiFi.begin(ssid.c_str(), password.c_str());
+    if (WiFi.waitForConnectResult() == WL_CONNECTED) {
+      Serial.println("Reconnected to Wi-Fi");
+
+      // Отключаем точку доступа
+      WiFi.softAPdisconnect();
+
+      // Включаем встроенный светодиод
+      pinMode(LED_BUILTIN, OUTPUT);
+      digitalWrite(LED_BUILTIN, HIGH);
+    } else {
+      Serial.println("Failed to connect to Wi-Fi");
+    }
   } else {
     server.send(400, "text/html", "Invalid Request");
   }
 }
+
 
 void sendDataToMQTT(float smokeLevel, float gasLevel) {
   if (WiFi.status() == WL_CONNECTED) {
@@ -136,7 +145,7 @@ void reconnect() {
       Serial.print("failed, rc=");
       Serial.print(client.state());
       Serial.println(" try again in 5 seconds");
-      delay(5000);
+      delay(1000);
     }
   }
 }

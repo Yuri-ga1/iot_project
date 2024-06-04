@@ -70,7 +70,7 @@ void loop() {
 
     sendDataToMQTT(smokeLevel, gasLevel);
   }
-  delay(5000);
+  delay(1000);
 }
 
 void handleRoot() {
@@ -145,7 +145,7 @@ void reconnect() {
       Serial.print("failed, rc=");
       Serial.print(client.state());
       Serial.println(" try again in 5 seconds");
-      delay(1000);
+      delay(5000);
     }
   }
 }

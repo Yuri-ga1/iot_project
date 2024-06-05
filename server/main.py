@@ -63,8 +63,7 @@ async def login(
     
     session = uuid4()
     data = SessionData(
-        username=login,
-        user_pass=hashed_password
+        user_id=user_id
     )
     
     await backend.create(session, data)

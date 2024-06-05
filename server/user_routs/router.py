@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Request, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
-import hashlib
+from fastapi import APIRouter, Request, Form, Depends
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from datetime import datetime
 import json
 
@@ -8,49 +7,31 @@ from ..config import templates
 from ..config import database
 from ..config import logger
 from ..config import mqtt
+from ..config import SessionData
+from ..config import verifier
+from ..config import cookie
 
 
 router = APIRouter()
 
 
-@router.get("/user_registration", response_class=HTMLResponse)
-async def registration(request: Request):
-    return templates.TemplateResponse("user_registration.html", {"request": request, "title": "Регистрация нового пользователя"})
+@router.get("/device_registration", dependencies=[Depends(cookie)], response_class=HTMLResponse)
+async def device_registration(request: Request, session_data: SessionData = Depends(verifier)):
+    return templates.TemplateResponse("device_registration.html", {
+        "request": request,
+        "title": "Регистрация нового девайса",
+        **session_data.get_inf()
+    })
 
-@router.post("/user_registration_form_process")
-async def registration(
-    name: str = Form(...),
-    login: str = Form(...),
-    password: str = Form(...),
-    email: str = Form(...)
-    ):
-    hashed_password = await hash_password(password)
-    client_id = await database.get_client(login, hashed_password)
-        
-    if client_id is None:
-        await database.add_client(
-            name=name,
-            login=login,
-            password=hashed_password,
-            email=email
-        )
-        
-    return RedirectResponse(url="/", status_code=303)
-
-
-@router.get("/device_registration", response_class=HTMLResponse)
-async def registration(request: Request):
-    return templates.TemplateResponse("device_registration.html", {"request": request, "title": "Регистрация нового девайса"})
-
-
-@router.post("/device_registration_form_process")
-async def device_registration(
-    login: str = Form(...),
-    password: str = Form(...),
+@router.post("/device_registration_form_process", dependencies=[Depends(cookie)])
+async def device_registration_process(
+    response: Response,
     mac: str = Form(...),
-    room: str = Form(...)
+    room: str = Form(...),
+    session_data: SessionData = Depends(verifier)
 ):
-    hashed_password = await hash_password(password)
+    login = session_data.username
+    hashed_password = session_data.user_pass
     client_id = await database.get_client(login, hashed_password)
     if client_id is None:
         return RedirectResponse(url="user_registration", status_code=303)
@@ -71,8 +52,7 @@ async def device_registration(
     else:
         logger.error("Failed to subscribe to MQTT topic: MQTT client is not connected")
         
-    return RedirectResponse(url="/", status_code=303)
-
+    return RedirectResponse(url="/user_panel", status_code=303, headers=response.headers)
 
 @mqtt.on_connect()
 def connect(client, flags, rc, properties):
@@ -109,8 +89,11 @@ def subscribe(client, mid, qos, properties):
     logger.info(f"Subscribed: {client}, MID: {mid}, QoS: {qos}, Properties: {properties}")
 
 
-async def hash_password(password: str) -> str:
-    md5_hash = hashlib.md5()
-    md5_hash.update(password.encode('utf-8'))
-    return md5_hash.hexdigest()
-    
+@router.get("/user_panel", dependencies=[Depends(cookie)], response_class=HTMLResponse)
+async def user_panel(request: Request, session_data: SessionData = Depends(verifier)):
+    return templates.TemplateResponse("user_panel.html",
+                                        {
+                                            'request': request, **session_data.get_inf(),
+                                            "title": "Панель пользователя",
+                                            'username': session_data.username
+                                        })

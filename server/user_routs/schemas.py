@@ -1,19 +1,17 @@
 from pydantic import BaseModel
 
 class SessionData(BaseModel):
-    username: str
-    user_pass: str
+    user_id: int
 
     def get_inf(self):
         data = {
             'auth_': False,
-            'username:': None,
+            'user_id:': None,
             'user_pass': ''
         }
-        if self.username:
+        if self.user_id:
             data = {
                 'auth_': True,
-                'username:': self.username,
-                'user_pass': self.user_pass
+                'user_id:': self.user_id
             }
         return data

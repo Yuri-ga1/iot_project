@@ -30,11 +30,7 @@ async def device_registration_process(
     room: str = Form(...),
     session_data: SessionData = Depends(verifier)
 ):
-    login = session_data.username
-    hashed_password = session_data.user_pass
-    client_id = await database.get_client(login, hashed_password)
-    if client_id is None:
-        return RedirectResponse(url="user_registration", status_code=303)
+    client_id = session_data.user_id
     
     device_id = await database.get_device_by_mac(mac)
     
@@ -91,9 +87,10 @@ def subscribe(client, mid, qos, properties):
 
 @router.get("/user_panel", dependencies=[Depends(cookie)], response_class=HTMLResponse)
 async def user_panel(request: Request, session_data: SessionData = Depends(verifier)):
+    client = await database.get_client_by_id(session_data.user_id)
     return templates.TemplateResponse("user_panel.html",
                                         {
                                             'request': request, **session_data.get_inf(),
                                             "title": "Панель пользователя",
-                                            'username': session_data.username
+                                            'username': client.name
                                         })

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from datetime import datetime
+from datetime import datetime, date
 
 from .tables import *
 
@@ -64,6 +64,13 @@ class Database:
             
         return client.id if client else None
     
+    async def get_client_by_id(self, user_id: int):
+        id = self.session.query(Client)\
+            .filter(Client.id == user_id)\
+            .first()
+            
+        return id if id else None
+    
     async def save_data(
         self,
         device_id: int,
@@ -90,3 +97,11 @@ class Database:
             data = self.session.query(Data).all()
             
         return data
+    
+    async def get_data_by_date(self, device_id: int, date: date):
+        start_date = date.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_date = date.replace(hour=23, minute=59, second=59, microsecond=999999)
+        
+        data = self.session.query(Data).filter(Data.date >= start_date, Data.date <= end_date, Data.device_id==device_id).all()
+        
+        return data if data else None

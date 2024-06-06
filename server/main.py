@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from starlette.middleware.wsgi import WSGIMiddleware
 import hashlib
 
 from .config import templates
@@ -13,6 +14,7 @@ from .config import SessionData
 from uuid import uuid4
 
 from .user_routs.router import router as user_router
+from .dash.dash_app import create_dash_app
 
 app.include_router(user_router)
 
@@ -69,6 +71,11 @@ async def login(
     await backend.create(session, data)
     cookie.attach_to_response(response, session)
     return RedirectResponse(url="/user_panel", status_code=303, headers=response.headers)
+
+requests_pathname_prefix = "/dash/"
+routes_pathname_prefix = "/"
+dash_app = create_dash_app(requests_pathname_prefix, routes_pathname_prefix)
+app.mount("/dash", WSGIMiddleware(dash_app.server))
 
 
 def start_server():

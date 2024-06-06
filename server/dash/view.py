@@ -90,24 +90,6 @@ def create_empty_gas_smoke_graph() -> go.Figure:
 
     return graph
 
-
-def add_data_graph(dates: datetime.datetime, gas: list[int], smoke: list[int]) -> go.Figure:
-    graph = create_empty_gas_smoke_graph()
-    scatterGas = create_scatter(dates, gas, "Газ")
-    scatterSmoke = create_scatter(dates, smoke, "Дым")
-
-    graph.add_traces([scatterGas, scatterSmoke])
-    return graph
-
-
-def create_scatter(dates: datetime.datetime, value: list[int], name: str) -> go.Scatter:
-    return go.Scatter(
-        x=dates,
-        y=value,
-        name=name,
-        mode="lines",
-    )
-
 def create_time_slider() -> dcc.RangeSlider:
     marks = {i: f"{i:02d}:00" if i % 3 == 0 else "" for i in range(25)}
     time_slider = dcc.RangeSlider(

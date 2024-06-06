@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, desc
+from sqlalchemy import create_engine, desc, extract
 from datetime import datetime, date
 
 from .tables import *
@@ -92,6 +92,13 @@ class Database:
         
         return device.id if device else None
     
+    def get_id_device_by_mac(self, mac: str):
+        device = self.session.query(Device)\
+            .filter(Device.MAC_address == mac)\
+            .first()
+        
+        return device.id if device else None
+    
     async def get_devices_mac(self):
         macs = self.session.query(Device.MAC_address).all()
         
@@ -145,10 +152,14 @@ class Database:
             
         return data
     
-    async def get_data_by_date(self, device_id: int, date: date):
-        start_date = date.replace(hour=0, minute=0, second=0, microsecond=0)
-        end_date = date.replace(hour=23, minute=59, second=59, microsecond=999999)
-        
-        data = self.session.query(Data).filter(Data.date >= start_date, Data.date <= end_date, Data.device_id==device_id).all()
-        
-        return data if data else None
+    def get_data_by_date(self, device_id: int, date: datetime):
+        data = self.session.query(Data)\
+            .filter(
+                Data.device_id == device_id,
+                extract('year', Data.date) == date.year,
+                extract('month', Data.date) == date.month,
+                extract('day', Data.date) == date.day
+            )\
+            .all()
+            
+        return data

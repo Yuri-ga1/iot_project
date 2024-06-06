@@ -10,6 +10,7 @@ from ..config import mqtt
 from ..config import SessionData
 from ..config import verifier
 from ..config import cookie
+from ..config import SMOKE_THRESHOLD, GAS_THRESHOLD
 
 
 router = APIRouter()
@@ -69,7 +70,7 @@ async def message(client, topic, payload, qos, properties):
     
         await database.save_data(
             device_id=device_id,
-            date= datetime.now(),
+            date=datetime.now(),
             smoke_level=smoke_level,
             gas_level=gas_level
         )

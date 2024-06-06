@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, Float, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -25,6 +25,7 @@ class Device(Base):
     
     client = relationship('Client', back_populates='device')
     data = relationship('Data', back_populates='device')
+    notice = relationship('Notice', back_populates='device')
 
 class Data(Base):
     __tablename__ = 'data'
@@ -36,3 +37,13 @@ class Data(Base):
     gas_level = Column(Float, nullable=False)
     
     device = relationship('Device', back_populates='data')
+
+class Notice(Base):
+    __tablename__ = 'notice'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    device_id = Column(Integer, ForeignKey('devices.id'), nullable=False)
+    notice_type = Column(Boolean, nullable=False) # 0 - gas, 1 - smoke
+    date = Column(DateTime, nullable=False)
+    
+    device = relationship('Device', back_populates='notice')

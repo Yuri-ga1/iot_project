@@ -7,6 +7,11 @@ from .database_module.database import Database
 
 database = Database()
 
+# Пороговые значения для газа и дыма
+
+SMOKE_THRESHOLD = 500
+GAS_THRESHOLD = 500
+
 #логирование
 import logging
 

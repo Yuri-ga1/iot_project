@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, desc
 from datetime import datetime, date
 
 from .tables import *
@@ -42,6 +42,22 @@ class Database:
         )
         self.session.add(new_client)
         self.session.commit()
+
+    async def add_notice(self, device_id: int, notice_type: bool, date: datetime):
+        new_notice = Notice(
+            device_id=device_id,
+            notice_type=notice_type,
+            date=date
+        )
+        self.session.add(new_notice)
+        self.session.commit()
+
+    async def get_date_notice_by_device_id_type(self, device_id: int, notice_type: bool):
+        notice = self.session.query(Notice)\
+            .filter(Notice.device_id == device_id, Notice.notice_type == notice_type)\
+            .order_by(desc(Notice.date))\
+            .first()
+        return notice.date if notice else None
 
 
     async def get_device_by_mac(self, mac: str):

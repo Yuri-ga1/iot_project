@@ -52,6 +52,24 @@ class Database:
         self.session.add(new_notice)
         self.session.commit()
 
+    async def get_client_id_by_mac(self, mac: str):
+        device = self.session.query(Device)\
+            .filter(Device.MAC_address == mac)\
+            .first()
+        return device.client_id if device else None
+    
+    async def get_room_by_mac(self, mac: str):
+        device = self.session.query(Device)\
+            .filter(Device.MAC_address == mac)\
+            .first()
+        return device.room if device else None
+    
+    async def get_email_by_id(self, id: int):
+        client = self.session.query(Client)\
+            .filter(Client.id == id)\
+            .first()
+        return client.email if client else None
+
     async def get_date_notice_by_device_id_type(self, device_id: int, notice_type: bool):
         notice = self.session.query(Notice)\
             .filter(Notice.device_id == device_id, Notice.notice_type == notice_type)\

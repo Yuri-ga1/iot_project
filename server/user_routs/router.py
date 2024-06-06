@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
+from ..notice.send_notice import send_email
 
 from ..config import templates
 from ..config import database
@@ -78,6 +79,20 @@ async def message(client, topic, payload, qos, properties):
                 smoke_level=smoke_level,
                 gas_level=gas_level
             )
+            notice_type = -1
+            if smoke_level >= SMOKE_THRESHOLD and gas_level >= GAS_THRESHOLD:
+                notice_type = 2
+            elif smoke_level >= SMOKE_THRESHOLD:
+                notice_type = 1
+            elif gas_level >= GAS_THRESHOLD:
+                notice_type = 0
+
+            if notice_type == 0 or notice_type == 1:
+                await send_email(mac_address, device_id, current_datetime, notice_type)
+            elif notice_type == 2:
+                for i in range(2):
+                    await send_email(mac_address, device_id, current_datetime, i)
+
     except json.JSONDecodeError:
         logger.warning("Received non-JSON message")
 

@@ -11,5 +11,12 @@
 <body>
     <h1>Welcome {{ username }}</h1>
     <button type="button" onclick="redirectTo('device_registration');">Register Device</button>
+
+    <h2>Your Devices</h2>
+    <ul>
+        {% for device in devices %}
+            <li>{{ device }}</li>
+        {% endfor %}
+    </ul>
 </body>
 </html>

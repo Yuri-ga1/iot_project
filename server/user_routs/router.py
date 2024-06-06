@@ -107,10 +107,15 @@ def subscribe(client, mid, qos, properties):
 
 @router.get("/user_panel", dependencies=[Depends(cookie)], response_class=HTMLResponse)
 async def user_panel(request: Request, session_data: SessionData = Depends(verifier)):
-    client = await database.get_client_by_id(session_data.user_id)
+    client_id = session_data.user_id
+    client = await database.get_client_by_id(client_id)
+    device_mac = await database.get_macs_by_id_client(client_id)
+    if device_mac is None:
+        device_mac = []
     return templates.TemplateResponse("user_panel.html",
                                         {
                                             'request': request, **session_data.get_inf(),
                                             "title": "Панель пользователя",
-                                            'username': client.name
-                                        })
+                                            'username': client.name,
+                                            'devices': device_mac
+                                        }) 

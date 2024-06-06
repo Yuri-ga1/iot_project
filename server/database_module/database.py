@@ -58,6 +58,13 @@ class Database:
             .first()
         return device.client_id if device else None
     
+    async def get_macs_by_id_client(self, client_id: int):
+        device = self.session.query(Device)\
+            .filter(Device.client_id == client_id)\
+            .all()
+        macs = [device.MAC_address for device in device if device.MAC_address]
+        return macs if len(macs) != 0 else None
+    
     async def get_room_by_mac(self, mac: str):
         device = self.session.query(Device)\
             .filter(Device.MAC_address == mac)\

@@ -87,6 +87,12 @@ class Database:
             
         return id if id else None
     
+    async def check_data_availability_by_date(self, device_id: int, date: datetime):
+        data = self.session.query(Data)\
+        .filter(Data.device_id == device_id, Data.date == date)\
+        .first()
+        return True if data else False
+    
     async def save_data(
         self,
         device_id: int,

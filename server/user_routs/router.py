@@ -67,13 +67,17 @@ async def message(client, topic, payload, qos, properties):
             return
     
         device_id = await database.get_device_by_mac(mac_address)
-    
-        await database.save_data(
-            device_id=device_id,
-            date=datetime.now(),
-            smoke_level=smoke_level,
-            gas_level=gas_level
-        )
+
+        current_datetime = datetime.now().replace(microsecond=0)
+        data_availability = await database.check_data_availability_by_date(device_id, current_datetime)
+
+        if not data_availability:    
+            await database.save_data(
+                device_id=device_id,
+                date=current_datetime,
+                smoke_level=smoke_level,
+                gas_level=gas_level
+            )
     except json.JSONDecodeError:
         logger.warning("Received non-JSON message")
 

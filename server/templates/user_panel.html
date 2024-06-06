@@ -15,7 +15,7 @@
     <h2>Your Devices</h2>
     <ul>
         {% for device in devices %}
-            <li>{{ device }}</li>
+            <li><a href="/dash?mac={{ device }}">{{ device }}</a></li>
         {% endfor %}
     </ul>
 </body>

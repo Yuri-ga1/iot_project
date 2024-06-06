@@ -118,4 +118,4 @@ async def user_panel(request: Request, session_data: SessionData = Depends(verif
                                             "title": "Панель пользователя",
                                             'username': client.name,
                                             'devices': device_mac
-                                        }) 
+                                        })

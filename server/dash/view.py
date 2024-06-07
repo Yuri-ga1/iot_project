@@ -10,14 +10,14 @@ def create_layout() -> html.Div:
             dcc.Store(id="date-store", storage_type="session"),
             dcc.Location(id="url", refresh=False),
             dbc.Row(
-                html.H3("Отображение данных детектора"),
+                html.H3("Displaying Detector Data"),
                 style={"margin-top": "20px"}
             ),
             dbc.Row(
                 [
                     dbc.Col(
                         [
-                            html.Label("Выберите дату:", style={"font-size": "18px", "margin-right": "10px"}),
+                            html.Label("Select date:", style={"font-size": "18px", "margin-right": "10px"}),
                             dcc.DatePickerSingle(
                                 id='date-picker',
                                 max_date_allowed=datetime.datetime.now(),
@@ -26,6 +26,8 @@ def create_layout() -> html.Div:
                                 date=datetime.datetime.now().strftime("%Y-%m-%d"),
                                 persistence=True,
                                 persistence_type="session",
+                                className="dbc",
+                                style={"border": "1px solid Thistle"}
                             )
                         ],
                         width="auto",
@@ -33,8 +35,9 @@ def create_layout() -> html.Div:
                     ),
                     dbc.Col(
                         dbc.Button(
-                            "Отобразить",
+                            "Show",
                             id="show-data",
+                            style={"border-radius": "7px", "font-size": "18px"}
                         ),
                         width="auto",
                         style={"display": "flex", "align-items": "center"}
@@ -53,7 +56,7 @@ def create_layout() -> html.Div:
             ),
             dbc.Row(
                 [
-                    html.Div("Выберите время:", style={"font-size": "18px"}),
+                    html.Div("Select time:", style={"font-size": "18px"}),
                     html.Div(
                         create_time_slider(),
                         style={"margin-top": "20px"}
@@ -73,14 +76,14 @@ def create_empty_gas_smoke_graph() -> go.Figure:
         plot_bgcolor="white",
         margin=dict(l=0, t=30, r=0, b=0),
         xaxis=dict(
-            title="Время",
+            title="Time",
             gridcolor="#E1E2E2",
             linecolor="black",
             showline=True,
             mirror=True,
         ),
         yaxis=dict(
-            title="Данные",
+            title="Data",
             gridcolor="#E1E2E2",
             linecolor="black",
             showline=True,
@@ -108,5 +111,6 @@ def create_time_slider() -> dcc.RangeSlider:
         disabled=True,
         persistence=True,
         persistence_type="session",
+        className="dbc"
     )
     return time_slider

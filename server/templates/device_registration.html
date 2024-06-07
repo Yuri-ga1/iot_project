@@ -2,21 +2,26 @@
 <html lang="en">
 <head>
     <title>{{ title }}</title>
+    <link rel="stylesheet" type="text/css" href="/static/styles.css">
+    <link rel="icon" href="/static/favicon.ico">
 </head>
 <body>
-    <h1>Registration Form</h1>
-    <form action="/device_registration_form_process" method="post">
-        <div>
-            <label for="mac">Device MAC address:</label>
-            <input type="text" id="mac" name="mac" required>
-        </div>
-        <div>
-            <label for="room">Room:</label>
-            <input type="text" id="room" name="room" required>
-        </div>
-        <div>
-            <button type="submit">Register</button>
-        </div>
-    </form>
+    <h2>Device registration</h2>
+    <div class="form">
+        <form action="/device_registration_form_process" method="post">
+            <div>
+                <label for="mac" class="macaddress">MAC:</label>
+                <input type="text" id="mac" name="mac" required>
+            </div>
+            <div>
+                <label for="room">Room:</label>
+                <input type="text" id="room" name="room" required>
+            </div>
+            <div>
+                <button type="submit">Register</button>
+            </div>
+        </form>
+    </div>
+    
 </body>
 </html>

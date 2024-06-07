@@ -3,6 +3,8 @@ from fastapi import Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from starlette.middleware.wsgi import WSGIMiddleware
 import hashlib
+from fastapi.staticfiles import StaticFiles
+import os
 
 from .config import templates
 from .config import app
@@ -18,6 +20,11 @@ from .dash.dash_app import create_dash_app
 
 app.include_router(user_router)
 
+path = "static"
+current_file_path = os.path.abspath(__file__)
+current_dir = os.path.dirname(current_file_path)
+dir_path = os.path.join(current_dir, path)
+app.mount("/static", StaticFiles(directory=dir_path), name="static")
 
 @app.get("/")
 async def welcome(request: Request):

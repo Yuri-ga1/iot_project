@@ -57,21 +57,22 @@ def register_callbacks(app: dash.Dash) -> None:
 
         return style, text, graph, disabled, date
     
-    def create_scatter(dates: datetime, value: list[int], name: str) -> go.Scatter:
+    def create_scatter(dates: datetime, value: list[int], name: str, color: str) -> go.Scatter:
         return go.Scatter(
             x=dates,
             y=value,
             name=name,
             mode="lines+markers",
             marker=dict(
-                size=4
+                size=4,
+                color=color
             )
         )
     
     def add_data_graph(dates: datetime, gas: list[int], smoke: list[int]) -> go.Figure:
         graph = create_empty_gas_smoke_graph()
-        scatterGas = create_scatter(dates, gas, "Газ")
-        scatterSmoke = create_scatter(dates, smoke, "Дым")
+        scatterGas = create_scatter(dates, gas, "Gas", "Orchid")
+        scatterSmoke = create_scatter(dates, smoke, "Smoke", "DarkMagenta")
 
         graph.add_traces([scatterGas, scatterSmoke])
         return graph

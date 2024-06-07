@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Index html</title>
+    <title>Home page</title>
+    <link rel="stylesheet" type="text/css" href="/static/styles.css">
+    <link rel="icon" href="/static/favicon.ico">
     <script>
         function redirectTo(action) {
             window.location.href = action;
@@ -9,8 +11,8 @@
     </script>
 </head>
 <body>
-    <h1>Welcome to the Index Page</h1>
-    <button type="button" onclick="redirectTo('user_registration');">Register User</button>
-    <button type="button" onclick="redirectTo('login');">login</button>
+    <h2>Home page</h2>
+    <button type="button" class="registration" onclick="redirectTo('user_registration');">Registration</button>
+    <button type="button" class="login" onclick="redirectTo('login');">Login</button>
 </body>
 </html>

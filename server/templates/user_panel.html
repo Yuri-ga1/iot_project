@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <title>{{ title }}</title>
+    <link rel="stylesheet" type="text/css" href="/static/styles.css">
+    <link rel="icon" href="/static/favicon.ico">
     <script>
         function redirectTo(action) {
             window.location.href = action;
@@ -9,14 +11,17 @@
     </script>
 </head>
 <body>
-    <h1>Welcome {{ username }}</h1>
+    <h2>Welcome {{ username }}</h2>
     <button type="button" onclick="redirectTo('device_registration');">Register Device</button>
 
-    <h2>Your Devices</h2>
-    <ul>
-        {% for device in devices %}
-            <li><a href="/dash?mac={{ device }}">{{ device }}</a></li>
-        {% endfor %}
-    </ul>
+    <p class="devices">Your Devices</p>
+    <div class="ul">
+        <ul>
+            {% for device in devices %}
+                <li><a href="/dash?mac={{ device }}">{{ device }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    
 </body>
 </html>

@@ -5,7 +5,7 @@
 #include <MQ2Lib.h>
 
 const int buzzerPin = 14;
-const int mq2Pin = 34;
+const int mq2Pin = 32;
 
 const float smokeThreshold = 500;
 const float gasThreshold = 500;

@@ -9,7 +9,7 @@ database = Database()
 
 # Пороговые значения для газа и дыма
 
-SMOKE_THRESHOLD = 500
+SMOKE_THRESHOLD = 300
 GAS_THRESHOLD = 500
 
 #логирование

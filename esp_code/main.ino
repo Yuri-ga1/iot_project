@@ -7,7 +7,7 @@
 const int buzzerPin = 14;
 const int mq2Pin = 32;
 
-const float smokeThreshold = 500;
+const float smokeThreshold = 300;
 const float gasThreshold = 500;
 
 MQ2 mq2(mq2Pin);
